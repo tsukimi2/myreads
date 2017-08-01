@@ -7,6 +7,7 @@ import Bookshelf from './Bookshelf';
 
 class Booklist extends Component {
 	render() {
+/*
 		let bookshelves = Object.keys(Global.Shelf).filter((item, i) => Global.Shelf[item].key !== Global.Shelf.NONE.key)
 			.map((item, i) => (
 				<Bookshelf
@@ -17,16 +18,36 @@ class Booklist extends Component {
 					loading={this.props.loading}
 				/>
 			));
+*/	
 
 		return(
       	<div className="list-books">
          	<div className="list-books-title">
             	<h1>MyReads</h1>
             </div>
-            <div className="list-books-content">
-					
+            <div className="list-books-content">					
             	<div>
-						{bookshelves}
+						<Bookshelf
+							key={Global.Shelf.CURRENTLY_READING.key}
+							onMoveBook={this.props.onMoveBook}
+							bookshelf={Global.Shelf.CURRENTLY_READING}
+							books={this.props.books}
+							loading={this.props.loading}
+						/>
+						<Bookshelf
+							key={Global.Shelf.WANT_TO_READ.key}
+							onMoveBook={this.props.onMoveBook}
+							bookshelf={Global.Shelf.WANT_TO_READ}
+							books={this.props.books}
+							loading={this.props.loading}
+						/>
+						<Bookshelf
+							key={Global.Shelf.READ.key}
+							onMoveBook={this.props.onMoveBook}
+							bookshelf={Global.Shelf.READ}
+							books={this.props.books}
+							loading={this.props.loading}
+						/>
               	</div>
             </div>
             <div className="open-search">

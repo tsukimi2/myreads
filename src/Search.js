@@ -1,84 +1,22 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-import update from 'react-addons-update';
-import * as BooksAPI from './BooksAPI';
+import PropTypes from 'prop-types';
 import Book from './Book';
 
 class Search extends Component {
-	constructor() {
-		super();
-		this.state = {
-			books: [],
-			loading: false,
-			max_results: 10	// ToDo: implement UI for user input max results
-		};
-	}
-
 	handleMoveBook(book_id, moveto_bookshelf) {
-		let prev_state = this.state.books;
-
-		let book_index = this.state.books.findIndex((book) => book.id === book_id);
-		let book = Object.assign({}, this.state.books[book_index]);
-		if(book_index !== -1) {
-			let new_state = update(this.state.books, {
-				[book_index]: {
-					shelf: {
-						$set: moveto_bookshelf
-					}
-				}
-			});
-
-			this.setState({ books: new_state });
-		}
-		
-		BooksAPI.update(book, moveto_bookshelf)
-		.then((res) => {
-			// ToDo: notify user of update success
-		}).catch((error) => {
-			// ToDo: notify user of update failed
-			this.setState({ books: prev_state });
-		});
+		this.props.onMoveBook(book_id, moveto_bookshelf);
 	}
 
 	handleSearch(evt) {
-		let empty_query = false;
-		let query = '';
-
-		if(evt.target.value && (query = evt.target.value.trim())) {
-			this.setState({ loading: true });
-
-			BooksAPI.search(query, this.state.max_results)
-				.then(res => {
-					if(typeof res.error === 'undefined') {
-						this.setState({ books: res, loading: false });
-					} else {
-						throw new Error(res.error);
-					}
-				})
-				.catch(error => {
-					// ToDo: user notification
-					console.log('error');
-					console.log(error);
-
-					this.setState({ books: [], loading: false });
-					if(error.message === 'empty query') {
-						// ToDo: user notification
-						console.log('err');
-					}
-			});
-		} else {
-			empty_query = true;
-		}
-
-		if(empty_query) {
-			this.setState({ books: [] });
-		}	
-
+		this.props.handleSearch(evt);
 	}
 
 	render() {
-		let books = this.state.books.map(book => (
-			<li key={book.id}><Book book={book} onMoveBook={this.handleMoveBook.bind(this)} /></li>
+		let books = this.props.books.map(book => (
+			<li key={book.id}>
+				<Book book={book} onMoveBook={this.props.onMoveBook.bind(this)} />
+			</li>
 		));
 
 		return(
@@ -98,8 +36,8 @@ class Search extends Component {
            		</div>
           	</div>
           	<div className="search-books-results">				
-					{ this.state.loading === false && books.length === 0 ? <span id="no-books">No books found</span>  : null }
-					{ this.state.loading === true? <div>Loading...</div> : null }
+					{ this.props.loading === false && books.length === 0 ? <span id="no-books">No books found</span>  : null }
+					{ this.props.loading === true? <div>Loading...</div> : null }
 					
            		<ol className="books-grid">
 						{books}
@@ -110,5 +48,12 @@ class Search extends Component {
 		);
 	}
 }
+
+Search.propTypes = {
+	onMoveBook: PropTypes.func.isRequired,
+	handleSearch: PropTypes.func.isRequired,
+	books: PropTypes.array.isRequired,
+	loading: PropTypes.bool.isRequired
+};
 
 export default Search;
